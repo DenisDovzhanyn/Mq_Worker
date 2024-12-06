@@ -1,4 +1,4 @@
-defmodule MwWorker do
+defmodule MqWorker do
   @moduledoc """
   Documentation for `MwWorker`.
   """

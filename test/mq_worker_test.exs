@@ -1,8 +1,8 @@
 defmodule MwWorkerTest do
   use ExUnit.Case
-  doctest MwWorker
+  doctest MqWorker
 
   test "greets the world" do
-    assert MwWorker.hello() == :world
+    assert MqWorker.hello() == :world
   end
 end

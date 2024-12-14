@@ -34,17 +34,21 @@ defmodule MqWorker.MessageConsumer do
   @impl true
   def handle_info({:basic_deliver, payload, _meta}, state) do
     case Jason.decode(payload) do
-      {:ok, message} ->
+      {:ok, message}  when map_size(message) == 3 ->
         case MqWorker.Messages.create_message(message) do
           {:ok, new_msg} ->
 
-            ApiClient.post_request(new_msg)
+            ApiClient.post_request_message(new_msg)
             {:noreply, state}
 
           {:error, changeset} ->
             Logger.error("we got a problem in the messageconsumer handleinfo method, #{changeset}")
             {:noreply, state}
         end
+
+      {:ok, request} when map_size(request) == 2 ->
+        ApiClient.post_request_key(request)
+        {:noreply, state}
 
       _ ->
         Logger.error("error in jason decode")

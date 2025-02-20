@@ -78,11 +78,15 @@ defmodule MqWorker.Messages do
   def create_message(attrs \\ %{}) do
     case Chats.get_chat_by_user_and_chat_id(%{"user_id" => attrs["user_id"], "chat_id" => attrs["chat_id"]}) do
     %UserChat{} ->
-      %Message{}
-      |> Message.changeset(attrs)
-      |> Repo.insert()
-
+      if attrs["content"] == "" do
+        IO.puts("bozo why")
+      else
+        %Message{}
+        |> Message.changeset(attrs)
+        |> Repo.insert()
+      end
     nil -> {:unauthorized}
+
     end
   end
 

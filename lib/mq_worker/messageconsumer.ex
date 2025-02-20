@@ -35,6 +35,7 @@ defmodule MqWorker.MessageConsumer do
   def handle_info({:basic_deliver, payload, _meta}, state) do
     case Jason.decode(payload) do
       {:ok, message}  when map_size(message) == 3 ->
+
         case MqWorker.Messages.create_message(message) do
           {:ok, new_msg} ->
 
@@ -43,6 +44,9 @@ defmodule MqWorker.MessageConsumer do
 
           {:error, changeset} ->
             Logger.error("we got a problem in the messageconsumer handleinfo method, #{changeset}")
+            {:noreply, state}
+
+          _ ->
             {:noreply, state}
         end
 

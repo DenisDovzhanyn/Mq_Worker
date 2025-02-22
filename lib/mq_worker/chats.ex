@@ -63,10 +63,13 @@ defmodule MqWorker.Chats do
 
   end
 
-  def get_chat_by_user_and_chat_id(%{"user_id" => user_id, "chat_id" => chat_id}) do
+  def get_userchat_by_user_and_chat_id(%{"user_id" => user_id, "chat_id" => chat_id}) do
     Repo.get_by(UserChat, user_id: user_id, chat_id: chat_id)
   end
 
+  def get_chat_by_chat_id(chat_id) do
+    Repo.get_by(Chat, id: chat_id)
+  end
 
   @doc """
   Creates a chat.
@@ -92,7 +95,7 @@ defmodule MqWorker.Chats do
   end
 
   def add_user(%{"user_id" => user_id, "chat_id" => chat_id}, inviter_id) do
-    case get_chat_by_user_and_chat_id(%{"user_id" => inviter_id, "chat_id" => chat_id}) do
+    case get_userchat_by_user_and_chat_id(%{"user_id" => inviter_id, "chat_id" => chat_id}) do
       %UserChat{} ->
         %UserChat{}
           |> UserChat.changeset(%{user_id: user_id, chat_id: chat_id})
@@ -104,7 +107,7 @@ defmodule MqWorker.Chats do
   end
 
   def remove_user (%{"user_id" => user_id, "chat_id" => chat_id}) do
-    case get_chat_by_user_and_chat_id(%{"user_id" => user_id, "chat_id" => chat_id}) do
+    case get_userchat_by_user_and_chat_id(%{"user_id" => user_id, "chat_id" => chat_id}) do
 
       %UserChat{} = user_chat ->
         response = Repo.delete(user_chat)

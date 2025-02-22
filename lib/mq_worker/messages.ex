@@ -40,7 +40,7 @@ defmodule MqWorker.Messages do
 
       %{"chat_id" => chat_id, "last_x_messages" => last_x_messages} ->
 
-        case Chats.get_chat_by_user_and_chat_id(%{"user_id" => id, "chat_id" => chat_id}) do
+        case Chats.get_userchat_by_user_and_chat_id(%{"user_id" => id, "chat_id" => chat_id}) do
 
          %UserChat{} ->
             messages = Repo.all(
@@ -76,17 +76,25 @@ defmodule MqWorker.Messages do
 
   """
   def create_message(attrs \\ %{}) do
-    case Chats.get_chat_by_user_and_chat_id(%{"user_id" => attrs["user_id"], "chat_id" => attrs["chat_id"]}) do
+    case Chats.get_userchat_by_user_and_chat_id(%{"user_id" => attrs["user_id"], "chat_id" => attrs["chat_id"]}) do
     %UserChat{} ->
       if attrs["content"] == "" do
         IO.puts("bozo why")
       else
-        %Message{}
-        |> Message.changeset(attrs)
-        |> Repo.insert()
+        message = %Message{}
+          |> Message.changeset(attrs)
+          |> Repo.insert()
+
+
+        chat = Chats.get_chat_by_chat_id(attrs["chat_id"])
+
+        Chats.update_chat(chat, %{"last_msg_time" => elem(message, 1).inserted_at})
+
+        message
       end
     nil -> {:unauthorized}
 
+    _ -> IO.puts('wtf')
     end
   end
 
